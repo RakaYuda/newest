@@ -24,10 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: Center(
-          child: Text(
-            'Empty Data',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: CircularProgressIndicator(),
         ),
       );
     } else {
