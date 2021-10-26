@@ -1,16 +1,26 @@
-# newest
+# Newest - Mobile Application
 
-A new Flutter project.
+Implemented news api and curated based on categories. This project build with Flutter.
 
-## Getting Started
+## Design
 
-This project is a starting point for a Flutter application.
+- [Link Dribbble](https://dribbble.com/shots/16698622-Newest-News-App)
+  ![Project Design](https://cdn.dribbble.com/users/2923619/screenshots/16698622/media/05455df3c7d44ef3163e239589182f7e.png)
 
-A few resources to get you started if this is your first Flutter project:
+## Installation
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+```
+#run in terminal
+flutter pub get
+```
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Packages
+
+- [sdk: flutter](https://flutter.dev/docs)
+- [build_runner](https://pub.dev/packages/build_runner)
+- [cupertino_icons](https://pub.dev/packages/cupertino_icons)
+- [dio](https://pub.dev/packages/dio)
+- [provider](https://pub.dev/packages/provider)
+- [analyzer](https://pub.dev/packages/analyzer)
+- [json_annotation](https://pub.dev/packages/json_annotation)
+- [json_serializable](https://pub.dev/packages/json_serializable)
