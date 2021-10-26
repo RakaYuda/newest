@@ -14,15 +14,14 @@ class News {
   final String content;
 
   News({
-    required this.source,
-    required this.author,
-    required this.title,
-    required this.description,
-    required this.url,
-    required this.urlToImage,
-    required this.publishedAt,
-    required this.content,
-  });
+    this.author = "-",
+    this.title = "-",
+    this.description = "-",
+    this.url = "-",
+    this.urlToImage = "-",
+    this.publishedAt = "-",
+    this.content = "-",
+  }) : source = Source(id: "-", name: "-");
 
   factory News.fromJson(Map<String, dynamic> json) => _$NewsFromJson(json);
   Map<String, dynamic> toJson() => _$NewsToJson(this);
