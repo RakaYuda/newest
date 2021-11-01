@@ -1,215 +1,268 @@
 import 'package:flutter/material.dart';
+import 'package:newest/models/news.dart';
+import 'package:newest/provider/news_provider.dart';
+import 'package:newest/screens/discover_screen.dart';
+import 'package:newest/screens/news_webview_screen.dart';
+import 'package:newest/style/style.dart';
+import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class NewsScreen extends StatelessWidget {
+class NewsScreen extends StatefulWidget {
+  static const id = 'news-screen';
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Gradient Demo',
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text('Flutter Gradient Demo'),
+  State<NewsScreen> createState() => _NewsScreenState();
+}
+
+class _NewsScreenState extends State<NewsScreen> {
+  @override
+  void initState() {
+    Provider.of<NewsProvider>(context, listen: false).fetchNews();
+    super.initState();
+  }
+
+  Widget loadingScreen() {
+    return Container(
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: new AlwaysStoppedAnimation<Color>(kPrimaryColor),
         ),
-        body: Column(
-          children: [
-            Flexible(
-              child: Stack(children: [
+      ),
+    );
+  }
+
+  String getTimeAgoFormat(String date) {
+    final DateTime dateString = DateTime.parse(date);
+
+    return timeago.format(dateString);
+  }
+
+  List<Widget> getNewsWidget(List<News> listNews) {
+    List<Widget> listWidgetNews = [];
+    if (listNews.isNotEmpty) {
+      listNews.forEach((news) {
+        listWidgetNews.add(InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NewsWebviewScreen(
+                  news: news,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.6,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.transparent,
-                        Color(0xFF121212)
-                      ],
+                  height: 140,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(news.urlToImage),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 32),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    news.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: textPrimary,
+                  ),
+                ),
+                Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const FlutterLogo(
-                        size: 48,
+                      Text(
+                        getTimeAgoFormat(news.publishedAt),
+                        style: textSecondary.copyWith(fontSize: 12),
                       ),
-                      Column(
-                        children: [
-                          const Text(
-                            'Who was founder of microsoft company?',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 24,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                color: Colors.white,
-                                child: const Text(
-                                  'Tech',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                ),
-                              ),
-                              const Text(
-                                'Read more',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              )
-                            ],
-                          )
-                        ],
-                      )
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        'By ${news.author}',
+                        style: textPrimary.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ]),
+              ],
             ),
-            Flexible(
-              child: Container(
-                color: Colors.white,
-                child: Column(
+          ),
+        ));
+        if (news != listNews.last) {
+          listWidgetNews.add(Container(
+            width: 1,
+            color: Colors.black,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+          ));
+        }
+      });
+    }
+    return listWidgetNews;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<News> listNews = Provider.of<NewsProvider>(context).getListNews;
+
+    return MaterialApp(
+      title: 'Flutter Gradient Demo',
+      home: Scaffold(
+          backgroundColor: Colors.white,
+          body: (listNews.isNotEmpty)
+              ? Column(
                   children: [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 22, right: 22, top: 32),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text(
-                            'Popular News',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold),
+                    Flexible(
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(listNews[0].urlToImage),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                          Text(
-                            'More',
-                            style: TextStyle(color: Colors.black, fontSize: 16),
-                          )
+                          Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.transparent,
+                                  Color(0xFF121212)
+                                ],
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 22, vertical: 32),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset(
+                                  "assets/images/logo.png",
+                                  height: 64,
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      listNews[0].title,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: textHeadingWhite.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 24,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          color: Colors.white,
+                                          child: Text(
+                                            'Tech',
+                                            style: textPrimary.copyWith(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewsWebviewScreen(
+                                                  news: listNews[0],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text('Read More'),
+                                          style: TextButton.styleFrom(
+                                              primary: kWhiteColor,
+                                              textStyle: textPrimaryWhite),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 18),
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.only(left: 22),
+                      child: Container(
+                        color: Colors.white,
+                        child: Column(
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.network(
-                                    'https://picsum.photos/250?image=9',
-                                    height: 140,
-                                    width: 230),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: Text(
-                                    'Gaming competition peak the highest popularity',
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 16),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 22, right: 22, top: 32),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Popular News',
+                                    style: textHeadingPrimary,
                                   ),
-                                ),
-                                const Text(
-                                  '10 hours ago',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                ),
-                                const Text(
-                                  'By Ryuda',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 14),
-                                ),
-                              ],
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                          (context), DiscoverScreen.id);
+                                    },
+                                    child: const Text('More'),
+                                    style: TextButton.styleFrom(
+                                      primary: kPrimaryColor,
+                                      textStyle: textPrimary,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                            Container(
-                              width: 1,
-                              color: Colors.black,
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.network(
-                                    'https://picsum.photos/250?image=9',
-                                    height: 140,
-                                    width: 230),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: Text(
-                                    'Gaming competition peak the highest popularity',
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 16),
-                                  ),
+                            Flexible(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    top: 18,
+                                    bottom: MediaQuery.of(context).size.height *
+                                        0.1),
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.only(
+                                      left: 22, right: 22),
+                                  children: getNewsWidget(listNews),
                                 ),
-                                const Text(
-                                  '10 hours ago',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                ),
-                                const Text(
-                                  'By Ryuda',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 14),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              width: 1,
-                              color: Colors.black,
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.network(
-                                    'https://picsum.photos/250?image=9',
-                                    height: 140,
-                                    width: 230),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: Text(
-                                    'Gaming competition peak the highest popularity',
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 16),
-                                  ),
-                                ),
-                                const Text(
-                                  '10 hours ago',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 12),
-                                ),
-                                const Text(
-                                  'By Ryuda',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 14),
-                                ),
-                              ],
-                            ),
+                              ),
+                            )
                           ],
                         ),
                       ),
                     )
                   ],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+                )
+              : loadingScreen()),
     );
   }
 }
